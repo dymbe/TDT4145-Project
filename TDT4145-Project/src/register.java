@@ -8,7 +8,7 @@ public class register {
 	private int nWork;
 	private Connection con;
 	private String usrName = "root";
-	private String pasWs = "Fotball12";
+	private String pasWs = "**";
 	private Scanner sc;
 	private boolean running = true;
 
