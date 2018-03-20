@@ -15,7 +15,7 @@ public class Nummer4 {
 		Statement st = con.createStatement();
 		st.executeUpdate(update);
 		System.out.println("komplett");
-		
+
 		st.close();
 		con.close();
 	}
@@ -24,7 +24,7 @@ public class Nummer4 {
 		String url ="jdbc:mysql://localhost:3306/tdt4145?useSSL=false";
 		String uname ="root";
 		String pass="root";
-		String query ="select distinct * from (Gruppe  INNER JOIN ØvelseGruppe ON Gruppe.GruppeID=ØvelseGruppe.GruppeID) INNER JOIN Øvelse ON ØvelseGruppe.ØvelseID=Øvelse.ØvelseID WHERE Gruppe.gruppenavn='"
+		String query ="select distinct * from (Gruppe  INNER JOIN ï¿½velseGruppe ON Gruppe.GruppeID=ï¿½velseGruppe.GruppeID) INNER JOIN ï¿½velse ON ï¿½velseGruppe.ï¿½velseID=ï¿½velse.ï¿½velseID WHERE Gruppe.gruppenavn='"
 				+gruppenavn+"';";
 		
 		Class.forName("com.mysql.jdbc.Driver");
