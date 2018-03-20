@@ -1,18 +1,19 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
 public class register {
 	private int nWork;
-	private Connection con;
-	private String usrName = "root";
-	private String pasWs = "Fotball12";
-	private Scanner sc;
-	private boolean running = true;
+	private static Connection con;
+	private static String usrName = "root";
+	private static String pasWs = "root";
+	private static Scanner sc;
+	private static boolean running = true;
 
-	public register() throws Exception{
+	public static void run() throws Exception{
 		System.out.println("Now running");
 		sc = new Scanner(System.in);
 		setupConnection();
@@ -22,10 +23,12 @@ public class register {
 			System.out.println("1: Registrere øvelse");
 			System.out.println("2: Registrere økt");
 			System.out.println("3: Registrere apparat");
-			System.out.println("3: Lage ny gruppe");
-			System.out.println("4: Hent ut øvelser fra gruppe");
-			System.out.println("5: Hent mest brukte apparat");
-			System.out.println("10: Avslutt");
+			System.out.println("4: Vis siste økter");
+			System.out.println("5: Hent ut øvelser fra gruppe");
+			System.out.println("6: Lag ny gruppe");
+			System.out.println("7: Hent ut mest brukte apparat");
+			System.out.println("8: Hent ut økter mellom et tidsintervall");
+			System.out.println("9: Avslutt");
 			int valg = Integer.parseInt(sc.nextLine());
 		if(valg == 1){
 			registerOvelse();
@@ -36,9 +39,15 @@ public class register {
 		}else if(valg == 4){
 			showWorkouts();
 		}else if(valg==5){
-			
+			getExercisesThatAreInASpecificGroup();
+		}else if(valg==6){
+			insertGroup();
+		}else if(valg==7){
+			getMostUsedApparat();
+		}else if(valg==8){
+			runNummer3("tdt4145","root","root",sc);
 		}
-		else if(valg == 5){
+		else if(valg == 9){
 			System.err.println("Avslutter...");
 			sc.close();
 			con.close();
@@ -54,7 +63,7 @@ public class register {
 	
 	
 
-	private void registerOvelse() throws Exception {
+	private static void registerOvelse() throws Exception {
 		System.out.println("Navn på øvelse");
 		String name = sc.nextLine();
 		System.out.println("Legg in prestasjon til øvelse");
@@ -68,7 +77,7 @@ public class register {
 		System.err.println("Dersom du ønsker å legge til en ny økt må du lage dette først!");
 		System.out.println("Skriv inn ID på den Økten du ønsker å legge øvelsen til");
 		
-		//Finner hva Ã¸velse ID kommer til å være:
+		//Finner hva Øvelse ID kommer til å være:
 		Statement idQst = con.createStatement();
 		ResultSet rst = idQst.executeQuery("SELECT ØvelseID from Øvelse ORDER BY ØvelseID DESC LIMIT 1");
 		rst.next();
@@ -128,7 +137,7 @@ public class register {
 	
 	}
 	
-	private void registerOkt() throws Exception {
+	private static void registerOkt() throws Exception {
 		System.out.println("Tidspunkt på formen ÅÅÅÅ-MM-DD TT:MM:SS");
 		String DateTime = sc.nextLine();
 		System.out.println("Skriv inn varighet");
@@ -142,7 +151,7 @@ public class register {
 		System.out.println("Satt inn ");
 		
 	}
-	public void showWorkouts() throws Exception {
+	public static void showWorkouts() throws Exception {
 			System.out.println("Hvor mange økter vil du se?");
 			int n = Integer.valueOf(sc.nextLine());
 			Statement stmt = con.createStatement();
@@ -154,7 +163,7 @@ public class register {
 	
 	
 
-	private void setupConnection() throws Exception {
+	private static void setupConnection() throws Exception {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/TDT4145?useSSL=false", usrName, pasWs);
@@ -163,7 +172,7 @@ public class register {
 		}
 	}
 
-	public void registerApparat() throws Exception {
+	public static void registerApparat() throws Exception {
 		System.out.println("Skriv inn navn");
 		String name = sc.nextLine();
 		System.out.println("Skriv inn beskrivelse");
@@ -177,6 +186,7 @@ public class register {
 	}
 	
 	public static void getExercisesThatAreInASpecificGroup() throws Exception{
+		System.out.println("Skriv inn gruppenavn:");
 		String gruppenavn=sc.nextLine();
 		String query ="select distinct * from (Gruppe  INNER JOIN øvelseGruppe ON Gruppe.GruppeID=øvelseGruppe.GruppeID) INNER JOIN øvelse ON øvelseGruppe.øvelseID=øvelse.øvelseID WHERE Gruppe.gruppenavn='"
 				+gruppenavn+"';";
@@ -187,13 +197,80 @@ public class register {
 		while(rs.next()){
 			System.out.println(rs.getString("navn"));
 		}
+		System.out.println('\n');
 		
-		st.close();
-		con.close();
 	}
 	
-	public static void main(String[] args) {
-		System.out.println("sdf");
+	public static void insertGroup() throws Exception{
+		System.out.println("Skriv inn navn på gruppen: ");
+		String navn=sc.nextLine();
+		String update ="INSERT INTO Gruppe VALUES (DEFAULT, '"+navn+"')";
+		
+		Class.forName("com.mysql.jdbc.Driver");
+		
+		Statement st = con.createStatement();
+		st.executeUpdate(update);
+		System.out.println("Gruppen ble opprettet"+'\n');
+
+	}
+	
+	public static void getMostUsedApparat() throws Exception{
+
+		String query ="SELECT apparat.navn, count(apparat.apparatid) as A FROM Apparat INNER JOIN fastmontert on fastmontert.ApparatID=apparat.ApparatID group by apparat.navn order by a desc limit 1";
+				
+		Statement st = con.createStatement();
+		ResultSet rs = st.executeQuery(query);
+		if(rs.next()){
+			System.out.println("Apparat: "+rs.getString("navn"));
+			System.out.println("Brukt "+rs.getInt("A")+" ganger"+'\n');
+		}
+		
+	}
+	
+	
+	
+    static void printSessionsBetween(String dbName, String user, String password, String start, String end) {
+        MySqlConnection mySql = new MySqlConnection(dbName, user, password);
+        try {
+            String query = "SELECT Navn, Prestasjon, Tidspunkt FROM Øvelse JOIN Treningsøkt ON Treningsøkt.ØktID = Øvelse.ØktID " +
+                    String.format("WHERE Tidspunkt >= '%s' AND Tidspunkt <= '%s';", start, end);
+            ResultSet resultSet = mySql.executeQuery(query);
+            StringBuilder string = new StringBuilder();
+            string.append(String.format("\nDine treningsøkter mellom %s og %s\n\n", start, end));
+            boolean fail = true;
+            while (resultSet.next()) {
+                fail = false;
+                string.append("Navn: ").append(resultSet.getString(1)).append(", ");
+                string.append("Prestasjon: ").append(resultSet.getString(2)).append(", ");
+                string.append("Tidspunkt: ").append(resultSet.getString(3)).append("\n");
+            }
+            if (fail) {
+                System.out.println("\nIngen treningsøkter i det tidsrommet\n");
+            } else {
+                System.out.println(string);
+            }
+        } catch (SQLException e) {
+            System.out.println("\nNoe gikk galt...\n");
+        }
+        mySql.close();
+    }
+
+    static void runNummer3(String dbName, String user, String password, Scanner scanner) {
+        String start = getDate(scanner, "start-tid");
+        String end = getDate(scanner, "slutt-tid");
+        printSessionsBetween(dbName, user, password, start, end);
+    }
+
+    private static String getDate(Scanner scanner, String type) {
+        System.out.print("Skriv inn " + type + " på yyyy-mm-dd hh:mm:ss format:\n");
+        return scanner.nextLine();
+    }
+    
+    
+    
+	
+	public static void main(String[] args) throws Exception {
+		run();
 	}
 
 }

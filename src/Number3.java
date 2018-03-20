@@ -6,11 +6,11 @@ public class Number3 {
     static void printSessionsBetween(String dbName, String user, String password, String start, String end) {
         MySqlConnection mySql = new MySqlConnection(dbName, user, password);
         try {
-            String query = "SELECT Navn, Prestasjon, Tidspunkt FROM Ã˜velse JOIN TreningsÃ¸kt ON TreningsÃ¸kt.Ã˜ktID = Ã˜velse.Ã˜ktID " +
+            String query = "SELECT Navn, Prestasjon, Tidspunkt FROM Øvelse JOIN Treningsøkt ON Treningsøkt.ØktID = Øvelse.ØktID " +
                     String.format("WHERE Tidspunkt >= '%s' AND Tidspunkt <= '%s';", start, end);
             ResultSet resultSet = mySql.executeQuery(query);
             StringBuilder string = new StringBuilder();
-            string.append(String.format("\nDine treningsÃ¸kter mellom %s og %s\n\n", start, end));
+            string.append(String.format("\nDine treningsøkter mellom %s og %s\n\n", start, end));
             boolean fail = true;
             while (resultSet.next()) {
                 fail = false;
@@ -19,7 +19,7 @@ public class Number3 {
                 string.append("Tidspunkt: ").append(resultSet.getString(3)).append("\n");
             }
             if (fail) {
-                System.out.println("\nIngen treningsÃ¸kter i det tidsrommet\n");
+                System.out.println("\nIngen treningsøkter i det tidsrommet\n");
             } else {
                 System.out.println(string);
             }
@@ -36,7 +36,7 @@ public class Number3 {
     }
 
     private static String getDate(Scanner scanner, String type) {
-        System.out.print("Skriv inn " + type + " pÃ¥ yyyy-mm-dd hh:mm:ss format:\n~$ ");
+        System.out.print("Skriv inn " + type + " på yyyy-mm-dd hh:mm:ss format:\n~$ ");
         return scanner.nextLine();
     }
 
