@@ -8,7 +8,7 @@ public class register {
 	private int nWork;
 	private Connection con;
 	private String usrName = "root";
-	private String pasWs = "**";
+	private String pasWs = "Fotball12";
 	private Scanner sc;
 	private boolean running = true;
 
@@ -59,12 +59,19 @@ public class register {
 		}
 		System.err.println("Dersom du ønsker å legge til en ny økt må du lage dette først!");
 		System.out.println("Skriv inn ID på den økten du ønker å legge økten til");
-
+		
+		//Finner hva øvelse ID kommer til å være:
+		Statement idQst = con.createStatement();
+		ResultSet rst = idQst.executeQuery("SELECT ØvelseID from øvelse ORDER BY ØvelseID DESC LIMIT 1");
+		rst.next();
+		int ovelseID = Integer.parseInt(rst.getString(1)) + 1;
+		
 		
 		int oktID = Integer.parseInt(sc.nextLine());
 		
+		
 		Statement stm = con.createStatement();
-		stm.executeUpdate("INSERT INTO øvelse VALUES(DEFAULT, '" + oktID + "','" + name + "','" + prestasjon + "')");
+		stm.executeUpdate("INSERT INTO øvelse VALUES(" + ovelseID + ", '" + oktID + "','" + name + "','" + prestasjon + "')");
 		
 		Statement sta = con.createStatement();
 		ResultSet result = stmt.executeQuery("select * from treningsøkt where øktID = " + oktID);
@@ -72,7 +79,46 @@ public class register {
 		
 		System.out.println("Øvelsen " + name + " lagt til i " + result.getString(4));
 		
+	
+		System.out.println("Er denne øvelsen fastmontert? Svar: y/n");
+		String ans = sc.nextLine();
+		if(ans.equals("y")){
+			System.out.println("Hvor mange kilo på denne?");
+			int kilo = Integer.valueOf(sc.nextLine());
+			System.out.println("Hvor mange sett på denne?");
+			int sett = Integer.valueOf(sc.nextLine());
+			
+			Statement stmAp = con.createStatement();
+			ResultSet rsAp = stmAp.executeQuery("select ApparatID, Navn from apparat");
+			while (rsAp.next()){
+				System.out.println("ID: " + rsAp.getString(1) + " " + rsAp.getString(2));
+			}
+			System.out.println("Hvilket apparat brukes. Skriv inn ID");
+			int ApparatID = Integer.valueOf(sc.nextLine());
+			
+			Statement fastmontert = con.createStatement();
+			fastmontert.executeUpdate("INSERT INTO fastmontert VALUES (DEFAULT,'" + ovelseID + "','" + kilo + "','" + sett + "','" + ApparatID + "')");
+			
+			
+		}else if(ans.equals("n")){
+			System.out.println("Dette er da er friøvelse");
+			System.out.println("Hva er beskrivelsen av denne friøvelsen?");
+			String besc = sc.nextLine();
+			
+			Statement friOvelse = con.createStatement();
+			friOvelse.executeUpdate("INSERT INTO friøvelse VALUES (DEFAULT,'" + besc + "','" + ovelseID  + "')");
+
+			System.out.println("Friøvelse satt inn");
+				
+		}else{
+			System.out.println("Øvelsen må enten var fri eller fastmontert");
 		}
+		
+		
+		
+		
+	
+	}
 	
 	private void registerOkt() throws Exception {
 		System.out.println("Tidspunkt på formen ÅÅÅÅ-MM-DD TT:MM:SS");
