@@ -31,6 +31,9 @@ public class register {
 		}else if(valg == 3){
 			registerApparat();
 		}else if(valg == 4){
+			showWorkouts();
+		}
+		else if(valg == 5){
 			System.err.println("Avslutter...");
 			sc.close();
 			con.close();
@@ -134,6 +137,17 @@ public class register {
 		System.out.println("Satt inn ");
 		
 	}
+	public void showWorkouts() throws Exception {
+			System.out.println("Hvor mange økter vil du se?");
+			int n = Integer.valueOf(sc.nextLine());
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery("select * from treningsøkt order by tidspunkt desc limit "+ n);
+			while (rs.next())
+				System.out.println(rs.getString(2) + "  " + rs.getString(3) + "  " + rs.getString(4));
+			
+}
+	
+	
 
 	private void setupConnection() throws Exception {
 		try {
